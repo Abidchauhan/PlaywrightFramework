@@ -5,9 +5,8 @@ export class ProductDetailsPage {
     this.addToCartBtn = page.getByTestId('product-details-addtocart-btn');
     this.errorMsg = page.getByTestId('product-details-error-msg');
     this.successMsg = page.getByTestId('product-details-success-msg');
-    // No testid exists for these yet; fall back to the rendered classes.
-    this.priceText = page.locator('.product-detail-price');
-    this.discountText = page.locator('.product-discount-text');
+    this.priceText = page.getByTestId('product-detail-price');
+    this.discountText = page.getByTestId('product-detail-discount');
   }
 
   getProductIdFromUrl() {
