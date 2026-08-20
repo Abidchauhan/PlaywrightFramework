@@ -22,6 +22,10 @@ export class CartPage {
     return this.page.getByTestId(`cart-item-remove-btn-${productId}`);
   }
 
+  errorMsg(productId) {
+    return this.page.getByTestId(`cart-item-error-msg-${productId}`);
+  }
+
   async updateQuantity(productId, quantity) {
     await this.qtyInput(productId).fill(String(quantity));
     await this.updateBtn(productId).click();

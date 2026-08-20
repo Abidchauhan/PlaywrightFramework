@@ -14,6 +14,16 @@ export class ProductDetailsPage {
     return match ? match[1] : null;
   }
 
+  /**
+   * Stock isn't exposed via testid (only as "In Stock (n)" body text), so read
+   * it straight from the backend to avoid parsing display text.
+   */
+  async getStock(productId) {
+    const response = await this.page.request.get(`http://localhost:5000/api/products/${productId}`);
+    const { product } = await response.json();
+    return product.stock;
+  }
+
   async addToCart(quantity) {
     await this.quantityInput.fill(String(quantity));
     await this.addToCartBtn.click();
