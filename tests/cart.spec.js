@@ -1,18 +1,17 @@
 // @ts-check
-import { test, expect } from '@playwright/test';
-import { ProductListingPage } from '../pages/ProductListingPage.js';
+import { test, expect } from '../fixtures/authenticated.js';
+import { ProductListingPage } from '../Pages/ProductListingPage.js';
 import { ProductDetailsPage } from '../pages/ProductDetailsPage.js';
 import { CartPage } from '../pages/CartPage.js';
-import { completeOnboarding } from './utils/authFlow.js';
 
 test.describe('Cart', () => {
-  test('adding a product to cart shows the correct quantity and total', async ({ page }) => {
+  test('adding a product to cart shows the correct quantity and total', async ({ authenticatedPage }) => {
+    const { page } = authenticatedPage;
     const productListingPage = new ProductListingPage(page);
     const productDetailsPage = new ProductDetailsPage(page);
     const cartPage = new CartPage(page);
     const quantity = 2;
 
-    await completeOnboarding(page);
     await productListingPage.openFirstProduct();
 
     const productId = productDetailsPage.getProductIdFromUrl();
@@ -34,14 +33,14 @@ test.describe('Cart', () => {
   });
 
   test('updating cart quantity above available stock shows an error and does not change the quantity', async ({
-    page,
+    authenticatedPage,
   }) => {
+    const { page } = authenticatedPage;
     const productListingPage = new ProductListingPage(page);
     const productDetailsPage = new ProductDetailsPage(page);
     const cartPage = new CartPage(page);
     const validQuantity = 1;
 
-    await completeOnboarding(page);
     await productListingPage.openFirstProduct();
 
     const productId = productDetailsPage.getProductIdFromUrl();

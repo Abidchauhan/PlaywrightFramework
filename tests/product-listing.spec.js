@@ -1,13 +1,12 @@
 // @ts-check
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/authenticated.js';
 import { ProductListingPage } from '../Pages/ProductListingPage.js';
-import { completeOnboarding } from './utils/authFlow.js';
 
 test.describe('Product Listing', () => {
-  test('user can see product cards and open one after completing onboarding', async ({ page }) => {
+  test('user can see product cards and open one after completing onboarding', async ({ authenticatedPage }) => {
+    const { page } = authenticatedPage;
     const productListingPage = new ProductListingPage(page);
 
-    await completeOnboarding(page);
     await expect(page).toHaveURL(/\/products/);
 
     await expect(productListingPage.productCards.first()).toBeVisible();

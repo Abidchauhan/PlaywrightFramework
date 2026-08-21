@@ -1,15 +1,17 @@
 // @ts-check
-import { test, expect } from '@playwright/test';
-import { ProductListingPage } from '../pages/ProductListingPage.js';
+import { test, expect } from '../fixtures/authenticated.js';
+import { ProductListingPage } from '../Pages/ProductListingPage.js';
 import { ProductDetailsPage } from '../pages/ProductDetailsPage.js';
 import { CartPage } from '../pages/CartPage.js';
 import { AddressesPage } from '../pages/AddressesPage.js';
 import { CheckoutPage } from '../pages/CheckoutPage.js';
 import { OrderConfirmedPage } from '../pages/OrderConfirmedPage.js';
-import { completeOnboarding } from './utils/authFlow.js';
 
 test.describe('Checkout', () => {
-  test('placing an order from cart navigates to order confirmation with the matching total', async ({ page }) => {
+  test('placing an order from cart navigates to order confirmation with the matching total', async ({
+    authenticatedPage,
+  }) => {
+    const { page } = authenticatedPage;
     const productListingPage = new ProductListingPage(page);
     const productDetailsPage = new ProductDetailsPage(page);
     const cartPage = new CartPage(page);
@@ -18,7 +20,6 @@ test.describe('Checkout', () => {
     const orderConfirmedPage = new OrderConfirmedPage(page);
     const quantity = 1;
 
-    await completeOnboarding(page);
     await productListingPage.openFirstProduct();
 
     const productId = productDetailsPage.getProductIdFromUrl();
