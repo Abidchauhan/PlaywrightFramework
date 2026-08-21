@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { ProductListingPage } from '../pages/ProductListingPage.js';
+import { ProductListingPage } from '../Pages/ProductListingPage.js';
 import { completeOnboarding } from './utils/authFlow.js';
 
 test.describe('Product Listing', () => {
