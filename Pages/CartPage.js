@@ -1,9 +1,13 @@
+import { expect } from '@playwright/test';
+
 export class CartPage {
   constructor(page) {
     this.page = page;
     this.total = page.getByTestId('cart-total');
     this.checkoutLink = page.getByTestId('cart-checkout-link');
     this.emptyMsg = page.getByTestId('cart-empty-msg');
+    // Per-product testid is dynamic (cart-item-remove-btn-{id}), so match on prefix.
+    this.removeButtons = page.locator('[data-testid^="cart-item-remove-btn-"]');
   }
 
   async goto() {
@@ -34,5 +38,21 @@ export class CartPage {
   async getTotalAmount() {
     const totalRaw = await this.total.textContent();
     return parseFloat(totalRaw.replace(/[^0-9.]/g, ''));
+  }
+
+  /**
+   * Removes every item from the cart, used to reset a worker-shared user's
+   * cart between tests so leftover items from an earlier test/file don't
+   * pollute a later test's total.
+   */
+  async clearAll() {
+    await this.goto();
+
+    let remaining = await this.removeButtons.count();
+    while (remaining > 0) {
+      await this.removeButtons.first().click();
+      remaining -= 1;
+      await expect(this.removeButtons).toHaveCount(remaining);
+    }
   }
 }

@@ -2,7 +2,7 @@
 import { test, expect } from '../fixtures/authenticated.js';
 import { ProductListingPage } from '../Pages/ProductListingPage.js';
 import { ProductDetailsPage } from '../pages/ProductDetailsPage.js';
-import { CartPage } from '../pages/CartPage.js';
+import { CartPage } from '../Pages/CartPage.js';
 
 test.describe('Cart', () => {
   test('adding a product to cart shows the correct quantity and total', async ({ authenticatedPage }) => {

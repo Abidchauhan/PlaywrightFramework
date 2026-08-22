@@ -2,7 +2,7 @@
 import { test, expect } from '../fixtures/authenticated.js';
 import { ProductListingPage } from '../Pages/ProductListingPage.js';
 import { ProductDetailsPage } from '../pages/ProductDetailsPage.js';
-import { CartPage } from '../pages/CartPage.js';
+import { CartPage } from '../Pages/CartPage.js';
 import { AddressesPage } from '../pages/AddressesPage.js';
 import { CheckoutPage } from '../pages/CheckoutPage.js';
 import { OrderConfirmedPage } from '../pages/OrderConfirmedPage.js';
