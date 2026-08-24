@@ -1,6 +1,6 @@
 // @ts-check
-import { test, expect } from '../fixtures/authenticated.js';
-import { ProductListingPage } from '../Pages/ProductListingPage.js';
+import { test, expect } from '../../fixtures/authenticated.js';
+import { ProductListingPage } from '../../Pages/ProductListingPage.js';
 
 test.describe('Product Listing', () => {
   test('user can see product cards and open one after completing onboarding', async ({ authenticatedPage }) => {

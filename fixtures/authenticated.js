@@ -1,6 +1,6 @@
 // @ts-check
 import { test as base } from '@playwright/test';
-import { completeOnboarding } from '../tests/utils/authFlow.js';
+import { completeOnboarding } from '../tests/ui/utils/authFlow.js';
 import { CartPage } from '../Pages/CartPage.js';
 
 /**

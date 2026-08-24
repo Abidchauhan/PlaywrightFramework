@@ -1,7 +1,7 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage.js';
-import { OtpVerifyPage } from '../pages/OtpVerifyPage.js';
+import { LoginPage } from '../../Pages/LoginPage.js';
+import { OtpVerifyPage } from '../../Pages/OtpVerifyPage.js';
 
 test.describe('Login Page', () => {
   test('user can navigate to login page and see the mobile input field', async ({ page }) => {

@@ -1,7 +1,7 @@
-import { LoginPage } from '../../pages/LoginPage.js';
-import { OtpVerifyPage } from '../../pages/OtpVerifyPage.js';
-import { ProfileSetupPage } from '../../pages/ProfileSetupPage.js';
-import { PersonalDetailsPage } from '../../pages/PersonalDetailsPage.js';
+import { LoginPage } from '../../../Pages/LoginPage.js';
+import { OtpVerifyPage } from '../../../Pages/OtpVerifyPage.js';
+import { ProfileSetupPage } from '../../../Pages/ProfileSetupPage.js';
+import { PersonalDetailsPage } from '../../../Pages/PersonalDetailsPage.js';
 
 /**
  * Runs login + real-backend OTP verification and leaves the page on

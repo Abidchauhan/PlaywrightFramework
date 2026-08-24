@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { ProfileSetupPage } from '../pages/ProfileSetupPage.js';
+import { ProfileSetupPage } from '../../Pages/ProfileSetupPage.js';
 import { loginWithOtp } from './utils/authFlow.js';
 
 test.describe('Profile Setup', () => {
