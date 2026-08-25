@@ -4,6 +4,17 @@ import { getAuthToken } from './utils/authApi.js';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
+/**
+ * @typedef {Object} CartItem
+ * @property {number} product_id
+ * @property {number} quantity
+ * @property {string} name
+ * @property {string} price
+ * @property {string} discount
+ * @property {string} image
+ * @property {number} stock
+ */
+
 test.describe('Cart API', () => {
   test('adding a product to the cart is reflected in GET /api/cart', async ({ request }) => {
     const { token } = await getAuthToken(request);
@@ -27,11 +38,11 @@ test.describe('Cart API', () => {
     });
 
     expect(cartResponse.status()).toBe(200);
-    const { items } = await cartResponse.json();
+    const { items } = /** @type {{ items: CartItem[] }} */ (await cartResponse.json());
 
     const cartItem = items.find((item) => item.product_id === product.id);
     expect(cartItem).toBeTruthy();
-    expect(cartItem.quantity).toBe(quantity);
+    expect(cartItem?.quantity).toBe(quantity);
   });
 
   test('GET /api/cart without a token returns 401', async ({ request }) => {
