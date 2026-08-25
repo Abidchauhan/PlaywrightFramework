@@ -4,6 +4,23 @@ import { getAuthToken } from './utils/authApi.js';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
+/**
+ * @typedef {Object} Address
+ * @property {number} id
+ * @property {number} user_id
+ * @property {string} label
+ * @property {string} address
+ * @property {number} country_id
+ * @property {number} state_id
+ * @property {number} district_id
+ * @property {number} is_default
+ * @property {string} created_at
+ * @property {string} updated_at
+ * @property {string} country_name
+ * @property {string} state_name
+ * @property {string} district_name
+ */
+
 test.describe('Addresses API', () => {
   test('full CRUD cycle: create, read, update, delete', async ({ request }) => {
     const { token } = await getAuthToken(request);
@@ -22,12 +39,14 @@ test.describe('Addresses API', () => {
     });
 
     expect(createResponse.status()).toBe(201);
-    const { address: created } = await createResponse.json();
+    const { address: created } = /** @type {{ address: Address }} */ (await createResponse.json());
     expect(created).toMatchObject({ label: 'Home', address: '221B Baker Street, Pune' });
 
     // Read - verify it shows up in the list, not just in the create response
     const listAfterCreate = await request.get(`${API_BASE_URL}/addresses`, { headers: authHeaders });
-    const { addresses: addressesAfterCreate } = await listAfterCreate.json();
+    const { addresses: addressesAfterCreate } = /** @type {{ addresses: Address[] }} */ (
+      await listAfterCreate.json()
+    );
     expect(addressesAfterCreate.some((a) => a.id === created.id)).toBe(true);
 
     // Update
@@ -48,7 +67,9 @@ test.describe('Addresses API', () => {
     // Verify the update persisted by reading it back, same reason the create
     // step re-reads via GET rather than trusting the write response alone.
     const listAfterUpdate = await request.get(`${API_BASE_URL}/addresses`, { headers: authHeaders });
-    const { addresses: addressesAfterUpdate } = await listAfterUpdate.json();
+    const { addresses: addressesAfterUpdate } = /** @type {{ addresses: Address[] }} */ (
+      await listAfterUpdate.json()
+    );
     const updated = addressesAfterUpdate.find((a) => a.id === created.id);
     expect(updated).toMatchObject({ label: 'Office', address: '42 Updated Street, Pune' });
 
@@ -60,7 +81,9 @@ test.describe('Addresses API', () => {
     expect(deleteResponse.status()).toBe(200);
 
     const listAfterDelete = await request.get(`${API_BASE_URL}/addresses`, { headers: authHeaders });
-    const { addresses: addressesAfterDelete } = await listAfterDelete.json();
+    const { addresses: addressesAfterDelete } = /** @type {{ addresses: Address[] }} */ (
+      await listAfterDelete.json()
+    );
     expect(addressesAfterDelete.some((a) => a.id === created.id)).toBe(false);
   });
 

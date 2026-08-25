@@ -20,7 +20,7 @@ test.describe('Checkout', () => {
     const orderConfirmedPage = new OrderConfirmedPage(page);
     const quantity = 1;
 
-    await productListingPage.openFirstProduct();
+    await productListingPage.openRandomProduct();
 
     const productId = productDetailsPage.getProductIdFromUrl();
     expect(productId).toBeTruthy();

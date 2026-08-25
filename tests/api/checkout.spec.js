@@ -12,7 +12,11 @@ test.describe('Checkout API', () => {
 
     const productsResponse = await request.get(`${API_BASE_URL}/products`);
     const { products } = await productsResponse.json();
-    const productId = products[0].id;
+    // Picked at random rather than products[0]: checking out bumps a product's
+    // updated_at, which resorts it back to the front of this list - so always
+    // taking products[0] makes every parallel checkout converge on the same
+    // product and race on its stock count.
+    const productId = products[Math.floor(Math.random() * products.length)].id;
 
     const productBeforeResponse = await request.get(`${API_BASE_URL}/products/${productId}`);
     const { product: productBefore } = await productBeforeResponse.json();
