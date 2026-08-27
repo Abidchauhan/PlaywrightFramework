@@ -1,0 +1,85 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.46
+        env:
+          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout MyPracticeProject
+        uses: actions/checkout@v4
+        with:
+          repository: Abidchauhan/MyPracticeProject
+          path: MyPracticeProject
+          token: ${{ secrets.MYPRACTICEPROJECT_PAT }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Install backend dependencies
+        working-directory: MyPracticeProject/backend
+        run: npm install
+
+      - name: Install frontend dependencies
+        working-directory: MyPracticeProject/frontend
+        run: npm install
+
+      - name: Run database migrations
+        working-directory: MyPracticeProject/backend
+        run: npm run db:migrate
+        env: &backend-env
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+
+      - name: Seed database
+        working-directory: MyPracticeProject/backend
+        run: npm run db:seed
+        env: *backend-env
+
+      - name: Start backend
+        working-directory: MyPracticeProject/backend
+        run: nohup node server.js > backend.log 2>&1 &
+        env: *backend-env
+
+      - name: Start frontend
+        working-directory: MyPracticeProject/frontend
+        run: nohup npm run dev > frontend.log 2>&1 &
+
+      - name: Wait for backend and frontend to be ready
+        run: npx wait-on http://localhost:5000/api/products http://localhost:5173 --timeout 60000
+
+      - name: Run Playwright tests
+        run: npx playwright test
