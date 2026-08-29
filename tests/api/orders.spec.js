@@ -1,5 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import * as allure from 'allure-js-commons';
 import { getAuthToken } from './utils/authApi.js';
 import { completeCheckout } from './utils/checkoutApi.js';
 
@@ -7,6 +8,10 @@ const API_BASE_URL = 'http://localhost:5000/api';
 
 test.describe('Orders API', () => {
   test('GET /api/orders lists the order with correct fields', async ({ request }) => {
+    await allure.feature('Orders');
+    await allure.severity('normal');
+    await allure.tags('api', 'smoke');
+
     const { token } = await getAuthToken(request);
     const authHeaders = { Authorization: `Bearer ${token}` };
     const { orderNumber, totalAmount } = await completeCheckout(request, token);
@@ -25,6 +30,10 @@ test.describe('Orders API', () => {
   });
 
   test('GET /api/orders/:id returns full order details', async ({ request }) => {
+    await allure.feature('Orders');
+    await allure.severity('normal');
+    await allure.tag('api');
+
     const { token } = await getAuthToken(request);
     const authHeaders = { Authorization: `Bearer ${token}` };
     const { orderNumber, productId, quantity } = await completeCheckout(request, token);
@@ -43,6 +52,10 @@ test.describe('Orders API', () => {
   });
 
   test('a different user gets 404 (not 403) when requesting another user’s order by id', async ({ request }) => {
+    await allure.feature('Orders');
+    await allure.severity('critical');
+    await allure.tags('api', 'security');
+
     const { token: ownerToken } = await getAuthToken(request);
     const { orderNumber } = await completeCheckout(request, ownerToken);
 

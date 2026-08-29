@@ -1,10 +1,15 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import * as allure from 'allure-js-commons';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
 test.describe('Auth API', () => {
   test('send-otp then verify-otp succeeds for a fresh mobile number', async ({ request }) => {
+    await allure.feature('Login');
+    await allure.severity('blocker');
+    await allure.tags('api', 'smoke');
+
     // Random valid mobile number so this run always hits a brand-new user,
     // same reason the UI flows do it in tests/ui/utils/authFlow.js.
     const mobile = '9' + Math.floor(100000000 + Math.random() * 900000000).toString();
@@ -30,6 +35,10 @@ test.describe('Auth API', () => {
   });
 
   test('send-otp rejects an invalid mobile number', async ({ request }) => {
+    await allure.feature('Login');
+    await allure.severity('minor');
+    await allure.tags('api', 'validation');
+
     const response = await request.post(`${API_BASE_URL}/auth/send-otp`, {
       data: { mobile: '123' },
     });

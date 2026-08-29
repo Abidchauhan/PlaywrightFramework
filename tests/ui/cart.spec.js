@@ -1,11 +1,16 @@
 // @ts-check
 import { test, expect } from '../../fixtures/authenticated.js';
+import * as allure from 'allure-js-commons';
 import { ProductListingPage } from '../../Pages/ProductListingPage.js';
 import { ProductDetailsPage } from '../../Pages/ProductDetailsPage.js';
 import { CartPage } from '../../Pages/CartPage.js';
 
 test.describe('Cart', () => {
   test('adding a product to cart shows the correct quantity and total', async ({ authenticatedPage }) => {
+    await allure.feature('Cart');
+    await allure.severity('critical');
+    await allure.tag('smoke');
+
     const { page } = authenticatedPage;
     const productListingPage = new ProductListingPage(page);
     const productDetailsPage = new ProductDetailsPage(page);
@@ -35,6 +40,10 @@ test.describe('Cart', () => {
   test('updating cart quantity above available stock shows an error and does not change the quantity', async ({
     authenticatedPage,
   }) => {
+    await allure.feature('Cart');
+    await allure.severity('minor');
+    await allure.tag('validation');
+
     const { page } = authenticatedPage;
     const productListingPage = new ProductListingPage(page);
     const productDetailsPage = new ProductDetailsPage(page);

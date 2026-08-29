@@ -1,11 +1,16 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import * as allure from 'allure-js-commons';
 import { getAuthToken } from './utils/authApi.js';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
 test.describe('Wishlist API', () => {
   test('add, list, and remove a product', async ({ request }) => {
+    await allure.feature('Wishlist');
+    await allure.severity('minor');
+    await allure.tags('api', 'smoke');
+
     const { token } = await getAuthToken(request);
     const authHeaders = { Authorization: `Bearer ${token}` };
 
@@ -36,6 +41,10 @@ test.describe('Wishlist API', () => {
   });
 
   test('adding the same product twice does not create a duplicate entry', async ({ request }) => {
+    await allure.feature('Wishlist');
+    await allure.severity('trivial');
+    await allure.tags('api', 'validation');
+
     const { token } = await getAuthToken(request);
     const authHeaders = { Authorization: `Bearer ${token}` };
 
@@ -66,6 +75,10 @@ test.describe('Wishlist API', () => {
   });
 
   test('GET /api/wishlist without a token returns 401', async ({ request }) => {
+    await allure.feature('Wishlist');
+    await allure.severity('critical');
+    await allure.tags('api', 'security');
+
     const response = await request.get(`${API_BASE_URL}/wishlist`);
 
     expect(response.status()).toBe(401);

@@ -1,11 +1,16 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import * as allure from 'allure-js-commons';
 import { getAuthToken } from './utils/authApi.js';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
 test.describe('Checkout API', () => {
   test('placing an order decrements stock, creates the order, and empties the cart', async ({ request }) => {
+    await allure.feature('Checkout');
+    await allure.severity('blocker');
+    await allure.tags('api', 'smoke');
+
     const { token } = await getAuthToken(request);
     const authHeaders = { Authorization: `Bearer ${token}` };
     const quantity = 1;

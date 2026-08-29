@@ -1,5 +1,6 @@
 // @ts-check
 import { test, expect } from '../../fixtures/authenticated.js';
+import * as allure from 'allure-js-commons';
 import { ProductListingPage } from '../../Pages/ProductListingPage.js';
 import { ProductDetailsPage } from '../../Pages/ProductDetailsPage.js';
 import { CartPage } from '../../Pages/CartPage.js';
@@ -11,6 +12,10 @@ test.describe('Checkout', () => {
   test('placing an order from cart navigates to order confirmation with the matching total', async ({
     authenticatedPage,
   }) => {
+    await allure.feature('Checkout');
+    await allure.severity('blocker');
+    await allure.tag('smoke');
+
     const { page } = authenticatedPage;
     const productListingPage = new ProductListingPage(page);
     const productDetailsPage = new ProductDetailsPage(page);

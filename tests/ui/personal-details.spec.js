@@ -1,11 +1,16 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import * as allure from 'allure-js-commons';
 import { ProfileSetupPage } from '../../Pages/ProfileSetupPage.js';
 import { PersonalDetailsPage } from '../../Pages/PersonalDetailsPage.js';
 import { loginWithOtp } from './utils/authFlow.js';
 
 test.describe('Personal Details', () => {
   test('user can fill personal details after profile setup and reach products', async ({ page }) => {
+    await allure.feature('PersonalDetails');
+    await allure.severity('blocker');
+    await allure.tag('smoke');
+
     const profileSetupPage = new ProfileSetupPage(page);
     const personalDetailsPage = new PersonalDetailsPage(page);
 

@@ -1,10 +1,15 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import * as allure from 'allure-js-commons';
 import { LoginPage } from '../../Pages/LoginPage.js';
 import { OtpVerifyPage } from '../../Pages/OtpVerifyPage.js';
 
 test.describe('Login Page', () => {
   test('user can navigate to login page and see the mobile input field', async ({ page }) => {
+    await allure.feature('Login');
+    await allure.severity('normal');
+    await allure.tag('smoke');
+
     const loginPage = new LoginPage(page);
 
     await loginPage.goto();
@@ -13,6 +18,10 @@ test.describe('Login Page', () => {
   });
 
   test('shows validation error for an invalid mobile number and stays on the login page', async ({ page }) => {
+    await allure.feature('Login');
+    await allure.severity('minor');
+    await allure.tag('validation');
+
     const loginPage = new LoginPage(page);
 
     await loginPage.goto();
@@ -24,6 +33,10 @@ test.describe('Login Page', () => {
   });
 
   test('user can complete login and verify OTP with the real backend OTP', async ({ page }) => {
+    await allure.feature('Login');
+    await allure.severity('blocker');
+    await allure.tag('smoke');
+
     const loginPage = new LoginPage(page);
     const otpVerifyPage = new OtpVerifyPage(page);
 
