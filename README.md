@@ -20,9 +20,10 @@ End-to-end UI and API test automation for **[MyPracticeProject](https://github.c
 
 - **Page Object Model** — one class per screen under `Pages/`, keeping locators and page-level actions out of the test files.
 - **Worker-scoped auth fixture** (`fixtures/authenticated.js`) — logs in once per Playwright worker via storage state instead of once per test, while every individual test still gets a fresh, fully isolated browser context. Cuts real OTP round-trips from "once per test" to "once per worker" without sacrificing test isolation.
-- **24 tests, two layers** — 9 browser-driven UI tests (`tests/ui/`) and 15 direct API tests (`tests/api/`) against the same backend, sharing zero test logic but proving the same business rules hold at both layers.
-- **CI/CD pipeline that tests the real stack** — GitHub Actions spins up an actual MySQL 8.0.46 container, checks out the application under test as a second repository, runs its migrations and seed script, boots the real backend and frontend, and only then runs the suite. Nothing is mocked.
-- **Allure reporting with real metadata** — every test is tagged with a business-impact severity (`blocker` → `trivial`), grouped by feature area (UI and API tests for the same feature, e.g. "Cart", merge into one view), and tagged (`@smoke`, `@validation`, `@security`, `@api`) for slicing the report by concern.
+- **26 tests, two layers** — 11 browser-driven UI tests and 15 direct API tests (`tests/api/`) against the same backend, sharing zero test logic but proving the same business rules hold at both layers.
+- **Deliberate mix of real-backend and mocked tests** — 24 of the 26 run against the real stack by default, for genuine integration confidence. The other 2 (`tests/ui/mocked-scenarios.spec.js`) use Playwright's `page.route()` to mock specific network responses, reserved for scenarios the real system can't safely or reliably reproduce on demand — a backend `500` during checkout, and a stock-depleted-mid-request race condition. Tagged `mocked` in Allure so they stay clearly distinguished from the rest of the suite in reporting, not blended in as if they carried the same guarantee.
+- **CI/CD pipeline that tests the real stack** — GitHub Actions spins up an actual MySQL 8.0.46 container, checks out the application under test as a second repository, runs its migrations and seed script, boots the real backend and frontend, and only then runs the suite against that live stack. The environment itself is never mocked — the two `page.route()` tests are a deliberate, isolated exception, not the default.
+- **Allure reporting with real metadata** — every test is tagged with a business-impact severity (`blocker` → `trivial`), grouped by feature area (UI and API tests for the same feature, e.g. "Cart", merge into one view), and tagged (`@smoke`, `@validation`, `@security`, `@api`, `@mocked`) for slicing the report by concern. Generated and uploaded as a build artifact on every CI run.
 
 ## Project Structure
 
@@ -35,6 +36,7 @@ PlaywrightFramework/
 │   └── authenticated.js      # Worker-scoped login + per-test isolated, pre-authenticated page
 ├── tests/
 │   ├── ui/                   # Browser-driven tests (login, onboarding, cart, checkout, ...)
+│   │   ├── mocked-scenarios.spec.js  # page.route()-mocked edge cases, kept separate on purpose
 │   │   └── utils/authFlow.js # Shared login/onboarding helpers for UI specs
 │   └── api/                  # Direct REST API tests (auth, cart, checkout, orders, ...)
 │       └── utils/            # Shared token/checkout helpers for API specs
@@ -82,6 +84,7 @@ Every push to `main` triggers the [Playwright Tests workflow](../../actions/work
 4. Runs the backend's real migration and seed scripts against the fresh database.
 5. Starts the backend and frontend in the background, then polls their actual endpoints until both are ready (no fixed `sleep`).
 6. Runs the full Playwright suite against that live stack.
+7. Generates the Allure report and uploads it as a workflow artifact (`if: always()`, so it's produced even when tests fail) — downloadable from the run's Actions summary page without needing to reproduce the failure locally.
 
 Because the database is a disposable container recreated on every run, every CI run starts from clean, correctly-seeded data — a stronger guarantee than the local dev database gets after repeated manual runs.
 
