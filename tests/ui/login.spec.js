@@ -17,20 +17,31 @@ test.describe('Login Page', () => {
     await expect(loginPage.mobileInput).toBeVisible();
   });
 
-  test('shows validation error for an invalid mobile number and stays on the login page', async ({ page }) => {
-    await allure.feature('Login');
-    await allure.severity('minor');
-    await allure.tag('validation');
+  const invalidMobileCases = [
+    { reason: 'too short', mobile: '123' },
+    { reason: 'too long', mobile: '12345678901' },
+    { reason: 'non-numeric', mobile: 'abcdefghij' },
+    { reason: 'empty', mobile: '' },
+  ];
 
-    const loginPage = new LoginPage(page);
+  for (const { reason, mobile } of invalidMobileCases) {
+    test(`shows validation error for an invalid mobile number - ${reason} and stays on the login page`, async ({
+      page,
+    }) => {
+      await allure.feature('Login');
+      await allure.severity('minor');
+      await allure.tag('validation');
 
-    await loginPage.goto();
-    await loginPage.login('123');
+      const loginPage = new LoginPage(page);
 
-    await expect(loginPage.errorMsg).toBeVisible();
-    await expect(loginPage.errorMsg).toHaveText('Enter a valid 10-digit mobile number');
-    await expect(page).toHaveURL(/.*login/);
-  });
+      await loginPage.goto();
+      await loginPage.login(mobile);
+
+      await expect(loginPage.errorMsg).toBeVisible();
+      await expect(loginPage.errorMsg).toHaveText('Enter a valid 10-digit mobile number');
+      await expect(page).toHaveURL(/.*login/);
+    });
+  }
 
   test('user can complete login and verify OTP with the real backend OTP', async ({ page }) => {
     await allure.feature('Login');

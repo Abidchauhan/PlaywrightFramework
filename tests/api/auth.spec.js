@@ -34,15 +34,24 @@ test.describe('Auth API', () => {
     expect(verifyBody.user).toMatchObject({ mobile });
   });
 
-  test('send-otp rejects an invalid mobile number', async ({ request }) => {
-    await allure.feature('Login');
-    await allure.severity('minor');
-    await allure.tags('api', 'validation');
+  const invalidMobileCases = [
+    { reason: 'too short', mobile: '123' },
+    { reason: 'too long', mobile: '12345678901' },
+    { reason: 'non-numeric', mobile: 'abcdefghij' },
+    { reason: 'empty', mobile: '' },
+  ];
 
-    const response = await request.post(`${API_BASE_URL}/auth/send-otp`, {
-      data: { mobile: '123' },
+  for (const { reason, mobile } of invalidMobileCases) {
+    test(`send-otp rejects an invalid mobile number - ${reason}`, async ({ request }) => {
+      await allure.feature('Login');
+      await allure.severity('minor');
+      await allure.tags('api', 'validation');
+
+      const response = await request.post(`${API_BASE_URL}/auth/send-otp`, {
+        data: { mobile },
+      });
+
+      expect(response.status()).toBe(400);
     });
-
-    expect(response.status()).toBe(400);
-  });
+  }
 });
