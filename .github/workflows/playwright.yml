@@ -69,6 +69,28 @@ jobs:
         run: npm run db:seed
         env: *backend-env
 
+      - name: Seed admin user
+        working-directory: MyPracticeProject/backend
+        run: |
+          node -e "
+          const mysql = require('mysql2/promise');
+          (async () => {
+            const conn = await mysql.createConnection({
+              host: process.env.DB_HOST,
+              user: process.env.DB_USER,
+              password: process.env.DB_PASSWORD,
+              database: process.env.DB_NAME,
+            });
+            await conn.execute(
+              'INSERT INTO users (mobile, role) VALUES (?, ?) ON DUPLICATE KEY UPDATE role = ?',
+              ['9123456780', 'admin', 'admin'],
+            );
+            await conn.end();
+            console.log('Admin user 9123456780 ready');
+          })().catch((err) => { console.error(err.message); process.exit(1); });
+          "
+        env: *backend-env
+
       - name: Start backend
         working-directory: MyPracticeProject/backend
         run: nohup node server.js > backend.log 2>&1 &
