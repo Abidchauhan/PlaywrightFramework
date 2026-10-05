@@ -10,7 +10,7 @@ test("admin can add a new product successfully", async ({ adminPage }) => {
     stock: 100,
     discount: 5,
     category: "Earrings",
-    subcategory: "Hoop",
+    subcategory: "Studs",
     description: "Elegant crystal hoop earrings with a modern finish",
   };
   const adminProductsPage = new AdminProductsPage(page);

@@ -13,7 +13,7 @@ test("admin can edit an existing product", async ({ adminPage }) => {
     stock: 10,
     discount: 0,
     category: "Earrings",
-    subcategory: "Hoop",
+    subcategory: "Studs",
     description: "Product for price edit test",
   };
 
@@ -50,7 +50,7 @@ test("admin can add previously empty field when editing", async ({
     stock: 10,
     discount: 0,
     category: "Earrings",
-    subcategory: "Hoop",
+    subcategory: "Studs",
     description: "Product for edit test",
   };
 
