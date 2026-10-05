@@ -14,6 +14,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  /* Logs in as admin once per run and saves playwright/.auth/admin.json */
+  globalSetup: './global-setup.js',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -41,6 +43,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: 'ui/admin/**',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      /* Admin specs share one product table (add-product counts rows), so run them one at a time */
+      name: 'admin',
+      testMatch: 'ui/admin/**/*.spec.js',
+      workers: 1,
       use: { ...devices['Desktop Chrome'] },
     },
 

@@ -1,9 +1,8 @@
-import { test, expect } from "@playwright/test";
-import { LoginPage } from "../../../Pages/LoginPage.js";
-import { OtpVerifyPage } from "../../../Pages/OtpVerifyPage.js";
+import { test, expect } from "../../../fixtures/adminAuthenticated.js";
 import { AdminProductsPage } from "../../../Pages/admin/AdminProductsPage.js";
 
-test("admin can add a new product successfully", async ({ page }) => {
+test("admin can add a new product successfully", async ({ adminPage }) => {
+  const { page } = adminPage;
   const productData = {
     name: "Crystal Hoop Earrings",
     sku: `EARR-HOO-${Date.now()}`,
@@ -14,21 +13,7 @@ test("admin can add a new product successfully", async ({ page }) => {
     subcategory: "Hoop",
     description: "Elegant crystal hoop earrings with a modern finish",
   };
-  const loginPage = new LoginPage(page);
-  const otpVerifyPage = new OtpVerifyPage(page);
   const adminProductsPage = new AdminProductsPage(page);
-  const mobileNumber = "9123456780";
-  await loginPage.goto();
-  const [sendOtpResponse] = await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        response.url().includes("/auth/send-otp") &&
-        response.request().method() === "POST",
-    ),
-    loginPage.login(mobileNumber),
-  ]);
-  const { otp } = await sendOtpResponse.json();
-  await otpVerifyPage.verify(otp);
   await adminProductsPage.goto();
   await expect(adminProductsPage.productRows.first()).toBeVisible();
   const countBefore = await adminProductsPage.productRows.count();
@@ -42,7 +27,6 @@ test("admin can add a new product successfully", async ({ page }) => {
 
   expect(countAfter).toBe(countBefore + 1);
 
-  console.log(productData.name);
   const apiResponse = await page.request.get(
     "http://localhost:5000/api/products",
   );

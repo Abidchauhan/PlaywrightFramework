@@ -12,6 +12,9 @@ export class AdminProductsPage {
     this.inputSKU = page.getByTestId("admin-product-form-sku");
     this.inputPrice = page.getByTestId("admin-product-form-price");
     this.inputDiscount = page.getByTestId("admin-product-form-discount");
+    this.productBrand = page.getByTestId("admin-product-form-brand");
+    this.productMaterial = page.getByTestId("admin-product-form-material");
+    this.productColor = page.getByTestId("admin-product-form-color");
     this.inputStock = page.getByTestId("admin-product-form-stock");
     this.selectCategory = page.getByTestId("admin-product-form-category");
     this.selectSubCategory = page.getByTestId("admin-product-form-subcategory");
@@ -55,5 +58,16 @@ export class AdminProductsPage {
 
     await this.productDescription.fill(String(productData.description));
     await this.submitButton.click();
+  }
+  async clickEditFirstProduct() {
+    await this.productEdit.first().click();
+  }
+  getRowBySku(sku) {
+    return this.page.locator("tr").filter({ hasText: sku });
+  }
+
+  async clickEditForSku(sku) {
+    const row = this.getRowBySku(sku);
+    await row.locator('[data-testid^="admin-product-edit-btn-"]').click();
   }
 }
