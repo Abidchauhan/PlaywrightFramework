@@ -5,7 +5,7 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
 ![Allure](https://img.shields.io/badge/Allure%20Report-FF5A5F?logo=qameta&logoColor=white)
 
-End-to-end UI and API test automation for **[MyPracticeProject](https://github.com/Abidchauhan/MyPracticeProject)**, a full-stack e-commerce application (React/Vite frontend, Node/Express backend, MySQL) I built and now test with this framework. It covers the full customer journey — OTP login, onboarding, product browsing, cart, checkout, order history, addresses, and wishlist — both through the browser and directly against the REST API.
+End-to-end UI and API test automation for **[MyPracticeProject](https://github.com/Abidchauhan/MyPracticeProject)**, a full-stack e-commerce application (React/Vite frontend, Node/Express backend, MySQL) I built and now test with this framework. It covers the full customer journey — OTP login, onboarding, product browsing, cart, checkout, order history, addresses, and wishlist — both through the browser and directly against the REST API — plus an admin suite for product management and admin route access control.
 
 ## Tech Stack
 
@@ -20,10 +20,11 @@ End-to-end UI and API test automation for **[MyPracticeProject](https://github.c
 
 - **Page Object Model** — one class per screen under `Pages/`, keeping locators and page-level actions out of the test files.
 - **Worker-scoped auth fixture** (`fixtures/authenticated.js`) — logs in once per Playwright worker via storage state instead of once per test, while every individual test still gets a fresh, fully isolated browser context. Cuts real OTP round-trips from "once per test" to "once per worker" without sacrificing test isolation.
-- **26 tests, two layers** — 11 browser-driven UI tests and 15 direct API tests (`tests/api/`) against the same backend, sharing zero test logic but proving the same business rules hold at both layers.
-- **Deliberate mix of real-backend and mocked tests** — 24 of the 26 run against the real stack by default, for genuine integration confidence. The other 2 (`tests/ui/mocked-scenarios.spec.js`) use Playwright's `page.route()` to mock specific network responses, reserved for scenarios the real system can't safely or reliably reproduce on demand — a backend `500` during checkout, and a stock-depleted-mid-request race condition. Tagged `mocked` in Allure so they stay clearly distinguished from the rest of the suite in reporting, not blended in as if they carried the same guarantee.
+- **Admin suite with one admin login per run** — 7 admin UI tests (`tests/ui/admin/`) cover adding a product, editing one (changing the price, and filling previously empty brand/material/color fields, verified through the API), the product list, and route-level RBAC (unauthenticated → `/login`, normal user → `/products`, admin session → `/admin`). `global-setup.js` logs in as the seeded admin (`9123456780`) through the real OTP flow once per run and saves the session to `playwright/.auth/admin.json` (gitignored); the `adminPage` fixture (`fixtures/adminAuthenticated.js`) opens a fresh context from that file for every test. One login per run rather than per worker keeps parallel workers from overwriting each other's OTP for the same mobile number. The admin specs run in their own `admin` Playwright project with `workers: 1`, because they share one product table and the add-product test asserts an exact row-count increase.
+- **39 tests, two layers** — 21 browser-driven UI tests (14 customer, 7 admin) and 18 direct API tests (`tests/api/`) against the same backend, sharing zero test logic but proving the same business rules hold at both layers.
+- **Deliberate mix of real-backend and mocked tests** — 37 of the 39 run against the real stack by default, for genuine integration confidence. The other 2 (`tests/ui/mocked-scenarios.spec.js`) use Playwright's `page.route()` to mock specific network responses, reserved for scenarios the real system can't safely or reliably reproduce on demand — a backend `500` during checkout, and a stock-depleted-mid-request race condition. Tagged `mocked` in Allure so they stay clearly distinguished from the rest of the suite in reporting, not blended in as if they carried the same guarantee.
 - **CI/CD pipeline that tests the real stack** — GitHub Actions spins up an actual MySQL 8.0.46 container, checks out the application under test as a second repository, runs its migrations and seed script, boots the real backend and frontend, and only then runs the suite against that live stack. The environment itself is never mocked — the two `page.route()` tests are a deliberate, isolated exception, not the default.
-- **Allure reporting with real metadata** — every test is tagged with a business-impact severity (`blocker` → `trivial`), grouped by feature area (UI and API tests for the same feature, e.g. "Cart", merge into one view), and tagged (`@smoke`, `@validation`, `@security`, `@api`, `@mocked`) for slicing the report by concern. Generated and uploaded as a build artifact on every CI run.
+- **Allure reporting with real metadata** — every test is tagged with a business-impact severity (`blocker` → `trivial`), grouped by feature area (UI and API tests for the same feature, e.g. "Cart", merge into one view), and tagged (`@smoke`, `@validation`, `@security`, `@crud`, `@api`, `@mocked`) for slicing the report by concern. Generated and uploaded as a build artifact on every CI run.
 
 ## Project Structure
 
@@ -32,21 +33,25 @@ PlaywrightFramework/
 ├── .github/workflows/
 │   └── playwright.yml        # CI pipeline: MySQL service, app checkout, migrate/seed, run tests
 ├── Pages/                    # Page Object Model — one class per screen
+│   └── admin/                # Admin page objects (AdminProductsPage)
 ├── fixtures/
-│   └── authenticated.js      # Worker-scoped login + per-test isolated, pre-authenticated page
+│   ├── authenticated.js      # Worker-scoped login + per-test isolated, pre-authenticated page
+│   └── adminAuthenticated.js # adminPage: fresh context per test from the saved admin session
 ├── tests/
 │   ├── ui/                   # Browser-driven tests (login, onboarding, cart, checkout, ...)
+│   │   ├── admin/            # Admin specs (products, add/edit product, RBAC), run by the "admin" project
 │   │   ├── mocked-scenarios.spec.js  # page.route()-mocked edge cases, kept separate on purpose
 │   │   └── utils/authFlow.js # Shared login/onboarding helpers for UI specs
 │   └── api/                  # Direct REST API tests (auth, cart, checkout, orders, ...)
 │       └── utils/            # Shared token/checkout helpers for API specs
-├── playwright.config.js
+├── global-setup.js           # Logs in as admin once per run, saves playwright/.auth/admin.json
+├── playwright.config.js      # "chromium" project (everything except admin) + "admin" project (1 worker)
 └── package.json
 ```
 
 ## Running Locally
 
-**Prerequisites:** Node.js 22+, and [MyPracticeProject](https://github.com/Abidchauhan/MyPracticeProject) running locally (backend on `:5000`, frontend on `:5173`, MySQL configured per its own `.env`).
+**Prerequisites:** Node.js 22+, and [MyPracticeProject](https://github.com/Abidchauhan/MyPracticeProject) running locally (backend on `:5000`, frontend on `:5173`, MySQL configured per its own `.env`). The database also needs an admin user with mobile `9123456780` and role `admin`, because `global-setup.js` logs in as that user on every run, including runs that don't touch the admin specs.
 
 ```bash
 # Install dependencies and browsers
@@ -59,6 +64,10 @@ npx playwright test
 # Run just one layer
 npx playwright test tests/ui
 npx playwright test tests/api
+
+# Run one Playwright project
+npx playwright test --project=chromium   # customer UI + API
+npx playwright test --project=admin      # admin suite, 1 worker
 
 # Interactive UI mode (great for debugging)
 npx playwright test --ui
@@ -82,9 +91,10 @@ Every push to `main` triggers the [Playwright Tests workflow](../../actions/work
 2. Checks out this repo **and** `MyPracticeProject` (as a private, separately-authenticated second checkout) side by side.
 3. Installs dependencies for this framework, the backend, and the frontend.
 4. Runs the backend's real migration and seed scripts against the fresh database.
-5. Starts the backend and frontend in the background, then polls their actual endpoints until both are ready (no fixed `sleep`).
-6. Runs the full Playwright suite against that live stack.
-7. Generates the Allure report and uploads it as a workflow artifact (`if: always()`, so it's produced even when tests fail) — downloadable from the run's Actions summary page without needing to reproduce the failure locally.
+5. Seeds the admin user (`9123456780`, role `admin`) with an idempotent `INSERT ... ON DUPLICATE KEY UPDATE`, so `global-setup.js` has an admin to log in as.
+6. Starts the backend and frontend in the background, then polls their actual endpoints until both are ready (no fixed `sleep`).
+7. Runs the full Playwright suite (`npx playwright test`, both projects) against that live stack. Global setup logs in as admin once first; on CI the config uses 1 worker and up to 2 retries.
+8. Generates the Allure report and uploads it as a workflow artifact (`if: always()`, so it's produced even when tests fail) — downloadable from the run's Actions summary page without needing to reproduce the failure locally.
 
 Because the database is a disposable container recreated on every run, every CI run starts from clean, correctly-seeded data — a stronger guarantee than the local dev database gets after repeated manual runs.
 
