@@ -1,7 +1,12 @@
 import { test, expect } from "../../../fixtures/adminAuthenticated.js";
+import * as allure from "allure-js-commons";
 import { AdminProductsPage } from "../../../Pages/admin/AdminProductsPage.js";
 
 test("admin can edit an existing product", async ({ adminPage }) => {
+  await allure.feature("AdminProducts");
+  await allure.severity("normal");
+  await allure.tag("crud");
+
   const { page } = adminPage;
   const adminProductsPage = new AdminProductsPage(page);
 
@@ -40,6 +45,10 @@ test("admin can edit an existing product", async ({ adminPage }) => {
 test("admin can add previously empty field when editing", async ({
   adminPage,
 }) => {
+  await allure.feature("AdminProducts");
+  await allure.severity("normal");
+  await allure.tag("crud");
+
   const { page } = adminPage;
   const adminProductsPage = new AdminProductsPage(page);
 

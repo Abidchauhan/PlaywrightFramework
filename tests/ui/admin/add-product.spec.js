@@ -1,7 +1,12 @@
 import { test, expect } from "../../../fixtures/adminAuthenticated.js";
+import * as allure from "allure-js-commons";
 import { AdminProductsPage } from "../../../Pages/admin/AdminProductsPage.js";
 
 test("admin can add a new product successfully", async ({ adminPage }) => {
+  await allure.feature("AdminProducts");
+  await allure.severity("critical");
+  await allure.tag("crud");
+
   const { page } = adminPage;
   const productData = {
     name: "Crystal Hoop Earrings",
