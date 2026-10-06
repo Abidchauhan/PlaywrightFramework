@@ -24,6 +24,10 @@ export class AdminProductsPage {
     this.submitButton = page.getByTestId("admin-product-form-submit");
     this.errorMessage = page.getByTestId("admin-product-form-error");
     this.adminModal = page.getByTestId("admin-modal");
+    this.deleteConfirmBtn = page.getByTestId(
+      "admin-product-delete-confirm-btn",
+    );
+    this.deleteCancelBtn = page.getByTestId("admin-product-delete-cancel-btn");
   }
 
   async goto() {
@@ -69,5 +73,17 @@ export class AdminProductsPage {
   async clickEditForSku(sku) {
     const row = this.getRowBySku(sku);
     await row.locator('[data-testid^="admin-product-edit-btn-"]').click();
+  }
+  async clickDeleteForSku(sku) {
+    const row = this.getRowBySku(sku);
+    await row.locator('[data-testid^="admin-product-delete-btn-"]').click();
+  }
+
+  async confirmDelete() {
+    await this.deleteConfirmBtn.click();
+  }
+
+  async cancelDelete() {
+    await this.deleteCancelBtn.click();
   }
 }
