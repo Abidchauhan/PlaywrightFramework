@@ -44,6 +44,8 @@ PlaywrightFramework/
 │   │   └── utils/authFlow.js # Shared login/onboarding helpers for UI specs
 │   └── api/                  # Direct REST API tests (auth, cart, checkout, orders, ...)
 │       └── utils/            # Shared token/checkout helpers for API specs
+├── scripts/
+│   └── allure.mjs            # Local Allure helper behind the test:allure / allure:generate / allure:open npm scripts
 ├── global-setup.js           # Logs in as admin once per run, saves playwright/.auth/admin.json
 ├── playwright.config.js      # "chromium" project (everything except admin) + "admin" project (1 worker)
 └── package.json
@@ -76,12 +78,27 @@ npx playwright test --ui
 npx playwright show-report
 ```
 
-### Viewing the Allure report
+### Viewing the Allure report (local)
 
 ```bash
-npx allure generate allure-results --clean -o allure-report
-npx allure open allure-report
+# Clear allure-results, then run Playwright (extra args go after --)
+npm run test:allure
+npm run test:allure -- --project=admin
+
+# Build the report, carrying over history from the previous local report
+npm run allure:generate
+
+# Open it
+npm run allure:open
 ```
+
+`test:allure` empties `allure-results` before each run. allure-playwright never clears it on its own, and even `npx playwright test --list` writes a "skipped" result for every test, so without the clean step stale results can hide the latest run's real statuses.
+
+`allure:generate` copies `allure-report/history` into the new results before generating, so the Trend widgets build up across local runs as long as you keep the `allure-report` folder between them. The report also includes:
+
+- **Environment:** OS, Node and Playwright versions, plus the frontend/backend URLs the tests target.
+- **Categories:** each failure is sorted into "App unreachable" (connection refused), "Test timeouts", "Assertion failures" or "Other failures".
+- **Screenshots:** failed tests get a screenshot attached (`screenshot: 'only-on-failure'`).
 
 ## CI/CD Pipeline
 

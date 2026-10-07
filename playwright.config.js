@@ -1,5 +1,7 @@
 // @ts-check
+import os from 'os';
 import { defineConfig, devices } from '@playwright/test';
+import playwrightPackage from '@playwright/test/package.json';
 
 /**
  * Read environment variables from file.
@@ -28,7 +30,38 @@ export default defineConfig({
  // reporter: 'html',  its have created by system, and now update for both reportnpx 
   reporter: [
   ['html'],
-  ['allure-playwright']
+  ['allure-playwright', {
+    /* Environment widget: only non-secret runtime info, never process.env values */
+    environmentInfo: {
+      OS: `${os.type()} ${os.release()} (${os.arch()})`,
+      Node: process.version,
+      Playwright: playwrightPackage.version,
+      Frontend: 'http://localhost:5173',
+      Backend: 'http://localhost:5000',
+    },
+    /* Categories widget: first match wins, so the specific causes come first.
+       allure-playwright reports a Playwright timeout as "broken" and every other error as "failed". */
+    categories: [
+      {
+        name: 'App unreachable (backend/frontend not running)',
+        messageRegex: '(?s).*(ECONNREFUSED|ERR_CONNECTION_REFUSED).*',
+        matchedStatuses: ['failed', 'broken'],
+      },
+      {
+        name: 'Test timeouts',
+        matchedStatuses: ['broken'],
+      },
+      {
+        name: 'Assertion failures',
+        messageRegex: '(?s).*expect\\(.*',
+        matchedStatuses: ['failed'],
+      },
+      {
+        name: 'Other failures',
+        matchedStatuses: ['failed'],
+      },
+    ],
+  }],
 ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -37,6 +70,9 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+
+    /* Failed tests get a screenshot, which allure-playwright attaches to the result */
+    screenshot: 'only-on-failure',
   },
 
   /* Configure projects for major browsers */

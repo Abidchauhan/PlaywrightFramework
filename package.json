@@ -2,7 +2,11 @@
   "name": "playwrightframework",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test:allure": "node scripts/allure.mjs test",
+    "allure:generate": "node scripts/allure.mjs generate",
+    "allure:open": "node scripts/allure.mjs open"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -11,6 +15,7 @@
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.2.0",
     "allure-commandline": "^2.43.0",
+    "allure-js-commons": "^3.11.0",
     "allure-playwright": "^3.11.0"
   }
 }
