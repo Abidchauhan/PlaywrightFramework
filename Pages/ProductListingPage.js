@@ -15,10 +15,10 @@ export class ProductListingPage {
   }
 
   /**
-   * Opens a random product rather than always the first one. Checking out
-   * bumps a product's updated_at, which resorts it back to the front of this
-   * list - so specs that check out (and then assert an exact stock delta)
-   * need to avoid always converging on the same product across parallel runs.
+   * Opens a random product rather than always the first one. The listing is
+   * sorted by product name, so the first card is always the same product -
+   * specs that check out (and then assert an exact stock delta) need to avoid
+   * all converging on that one product across parallel runs.
    */
   async openRandomProduct() {
     const count = await this.productCards.count();

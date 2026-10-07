@@ -47,6 +47,9 @@ export class CartPage {
    */
   async clearAll() {
     await this.goto();
+    // The cart renders "Loading cart..." until its fetch resolves, so count() right after
+    // goto() always sees 0. Wait for either the empty message or the first item.
+    await expect(this.emptyMsg.or(this.removeButtons.first())).toBeVisible();
 
     let remaining = await this.removeButtons.count();
     while (remaining > 0) {
