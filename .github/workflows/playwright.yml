@@ -2,6 +2,9 @@ name: Playwright Tests
 on:
   push:
     branches: [main]
+# Read-only token by default; only the deploy-report job gets write permissions.
+permissions:
+  contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -106,6 +109,19 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
 
+      # Feeds the Allure Trend widgets. The first run finds no published report (404),
+      # keeps no files, and the report is generated without history.
+      - name: Restore Allure history from the published report
+        if: ${{ !cancelled() }}
+        env:
+          REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: |
+          mkdir -p allure-results/history
+          for f in history.json history-trend.json duration-trend.json categories-trend.json retry-trend.json; do
+            curl -fsSL "$REPORT_URL/history/$f" -o "allure-results/history/$f" || rm -f "allure-results/history/$f"
+          done
+          ls -la allure-results/history
+
       - name: Generate Allure report
         if: always()
         run: npx allure generate allure-results --clean
@@ -116,3 +132,37 @@ jobs:
         with:
           name: allure-report
           path: allure-report
+
+      # The public Pages copy drops Playwright traces (.zip attachments): they record network
+      # traffic, including auth tokens and OTP responses. The artifact above keeps them.
+      - name: Prepare Pages copy of the report without traces
+        if: ${{ !cancelled() }}
+        run: |
+          rm -rf allure-pages
+          cp -r allure-report allure-pages
+          find allure-pages -path '*/data/attachments/*.zip' -print -delete
+
+      - name: Upload report for GitHub Pages
+        if: ${{ !cancelled() }}
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: allure-pages
+
+  deploy-report:
+    needs: test
+    # Publish even when tests failed; skip only if the run was cancelled.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write      # create the Pages deployment
+      id-token: write   # OIDC token proving the deployment comes from this workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy Allure report to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
