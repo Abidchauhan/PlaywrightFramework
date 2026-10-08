@@ -7,6 +7,8 @@
 
 End-to-end UI and API test automation for **[MyPracticeProject](https://github.com/Abidchauhan/MyPracticeProject)**, a full-stack e-commerce application (React/Vite frontend, Node/Express backend, MySQL) I built and now test with this framework. It covers the full customer journey — OTP login, onboarding, product browsing, cart, checkout, order history, addresses, and wishlist — both through the browser and directly against the REST API — plus an admin suite covering product CRUD (add, edit, delete) and admin route access control.
 
+**Live Allure report:** [abidchauhan.github.io/PlaywrightFramework/](https://abidchauhan.github.io/PlaywrightFramework/), published by CI on every push to `main`.
+
 ## Tech Stack
 
 | Layer | Tool |
@@ -24,7 +26,7 @@ End-to-end UI and API test automation for **[MyPracticeProject](https://github.c
 - **41 tests, two layers** — 23 browser-driven UI tests (14 customer, 9 admin) and 18 direct API tests (`tests/api/`) against the same backend, sharing zero test logic but proving the same business rules hold at both layers.
 - **Deliberate mix of real-backend and mocked tests** — 39 of the 41 run against the real stack by default, for genuine integration confidence. The other 2 (`tests/ui/mocked-scenarios.spec.js`) use Playwright's `page.route()` to mock specific network responses, reserved for scenarios the real system can't safely or reliably reproduce on demand — a backend `500` during checkout, and a stock-depleted-mid-request race condition. Tagged `mocked` in Allure so they stay clearly distinguished from the rest of the suite in reporting, not blended in as if they carried the same guarantee.
 - **CI/CD pipeline that tests the real stack** — GitHub Actions spins up an actual MySQL 8.0.46 container, checks out the application under test as a second repository, runs its migrations and seed script, boots the real backend and frontend, and only then runs the suite against that live stack. The environment itself is never mocked — the two `page.route()` tests are a deliberate, isolated exception, not the default.
-- **Allure reporting with real metadata** — every test is tagged with a business-impact severity (`blocker` → `trivial`), grouped by feature area (UI and API tests for the same feature, e.g. "Cart", merge into one view), and tagged (`@smoke`, `@validation`, `@security`, `@crud`, `@api`, `@mocked`) for slicing the report by concern. Generated and uploaded as a build artifact on every CI run.
+- **Allure reporting with real metadata** — every test is tagged with a business-impact severity (`blocker` → `trivial`), grouped by feature area (UI and API tests for the same feature, e.g. "Cart", merge into one view), and tagged (`@smoke`, `@validation`, `@security`, `@crud`, `@api`, `@mocked`) for slicing the report by concern. Generated on every CI run, uploaded as a build artifact, and published to GitHub Pages ([live report](https://abidchauhan.github.io/PlaywrightFramework/)) with history carried over, so the Trend widgets build up across runs.
 
 ## Project Structure
 
@@ -100,6 +102,12 @@ npm run allure:open
 - **Categories:** each failure is sorted into "App unreachable" (connection refused), "Test timeouts", "Assertion failures" or "Other failures".
 - **Screenshots:** failed tests get a screenshot attached (`screenshot: 'only-on-failure'`).
 
+### Allure report in CI (GitHub Pages)
+
+CI publishes the report to [abidchauhan.github.io/PlaywrightFramework](https://abidchauhan.github.io/PlaywrightFramework/). Before generating, the workflow downloads the `history/` files from the currently published report into `allure-results/history`, so each new report continues the Trend from the previous run. When nothing has been published yet (the very first run), the workflow is configured to generate the report without history instead of failing.
+
+The published copy leaves out Playwright traces: the workflow deletes the report's `.zip` attachments (traces are recorded on the first retry of a failing test, and they capture network traffic, which can include auth tokens) from the copy it sends to Pages. The test still lists its trace entry, but the file isn't there. The `allure-report` workflow artifact is uploaded before that step and keeps the traces.
+
 ## CI/CD Pipeline
 
 Every push to `main` triggers the [Playwright Tests workflow](../../actions/workflows/playwright.yml), which:
@@ -111,7 +119,8 @@ Every push to `main` triggers the [Playwright Tests workflow](../../actions/work
 5. Seeds the admin user (`9123456780`, role `admin`) with an idempotent `INSERT ... ON DUPLICATE KEY UPDATE`, so `global-setup.js` has an admin to log in as.
 6. Starts the backend and frontend in the background, then polls their actual endpoints until both are ready (no fixed `sleep`).
 7. Runs the full Playwright suite (`npx playwright test`, both projects) against that live stack. Global setup logs in as admin once first; on CI the config uses 1 worker and up to 2 retries.
-8. Generates the Allure report and uploads it as a workflow artifact (`if: always()`, so it's produced even when tests fail) — downloadable from the run's Actions summary page without needing to reproduce the failure locally.
+8. Restores Allure history from the published report, generates the Allure report, and uploads it as a workflow artifact (`if: always()`, so it's produced even when tests fail) — downloadable from the run's Actions summary page without needing to reproduce the failure locally.
+9. Publishes a copy of the report without Playwright traces to GitHub Pages. A separate `deploy-report` job does the deploy; it is configured to run even when tests fail, and to be skipped only if the run is cancelled. It is the only job with write permissions (`pages: write`, `id-token: write`); the rest of the workflow runs with a read-only token (`contents: read`).
 
 Because the database is a disposable container recreated on every run, every CI run starts from clean, correctly-seeded data — a stronger guarantee than the local dev database gets after repeated manual runs.
 
