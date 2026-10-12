@@ -2,6 +2,7 @@
 import os from 'os';
 import { defineConfig, devices } from '@playwright/test';
 import playwrightPackage from '@playwright/test/package.json';
+import { BASE_URL, API_URL } from './config/env.js';
 
 /**
  * Read environment variables from file.
@@ -31,13 +32,14 @@ export default defineConfig({
   reporter: [
   ['html'],
   ['allure-playwright', {
-    /* Environment widget: only non-secret runtime info, never process.env values */
+    /* Environment widget: only non-secret runtime info. The URLs come from config/env.js
+       (BASE_URL / API_URL); no other process.env values belong here. */
     environmentInfo: {
       OS: `${os.type()} ${os.release()} (${os.arch()})`,
       Node: process.version,
       Playwright: playwrightPackage.version,
-      Frontend: 'http://localhost:5173',
-      Backend: 'http://localhost:5000',
+      Frontend: BASE_URL,
+      Backend: API_URL,
     },
     /* Categories widget: first match wins, so the specific causes come first.
        allure-playwright reports a Playwright timeout as "broken" and every other error as "failed". */
@@ -67,6 +69,7 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     // baseURL: 'http://localhost:3000',
+    baseURL: BASE_URL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
