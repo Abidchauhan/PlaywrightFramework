@@ -1,6 +1,7 @@
 import { chromium, expect } from "@playwright/test";
 import { LoginPage } from "./Pages/LoginPage.js";
 import { OtpVerifyPage } from "./Pages/OtpVerifyPage.js";
+import { BASE_URL } from "./config/env.js";
 
 export const ADMIN_STORAGE_STATE = "playwright/.auth/admin.json";
 
@@ -8,7 +9,9 @@ export const ADMIN_STORAGE_STATE = "playwright/.auth/admin.json";
 // pe OTP overwrite na karein. Session file adminAuthenticated fixture use karta hai.
 export default async function globalSetup() {
   const browser = await chromium.launch();
-  const context = await browser.newContext();
+  // Apna browser hai, isliye config ka use.baseURL yahan nahi aata; tests wala
+  // origin (BASE_URL) khud do, taaki saved session usi origin ke liye bane.
+  const context = await browser.newContext({ baseURL: BASE_URL });
   const page = await context.newPage();
 
   const loginPage = new LoginPage(page);
