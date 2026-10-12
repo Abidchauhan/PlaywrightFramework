@@ -1,6 +1,7 @@
 import { test, expect } from "../../../fixtures/adminAuthenticated.js";
 import * as allure from "allure-js-commons";
 import { AdminProductsPage } from "../../../Pages/admin/AdminProductsPage.js";
+import { API_URL } from "../../../config/env.js";
 
 test("admin can edit an existing product", async ({ adminPage }) => {
   await allure.feature("AdminProducts");
@@ -80,7 +81,7 @@ test("admin can add previously empty field when editing", async ({
 
   // Brand UI table mein nahi dikhta, isliye API se verify karo
   const apiResponse = await page.request.get(
-    "http://localhost:5000/api/products",
+    `${API_URL}/api/products`,
   );
   const { products } = await apiResponse.json();
   const editedProduct = products.find((p) => p.sku === productData.sku);

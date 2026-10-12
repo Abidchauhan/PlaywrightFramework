@@ -1,6 +1,7 @@
 import { test, expect } from "../../../fixtures/adminAuthenticated.js";
 import * as allure from "allure-js-commons";
 import { AdminProductsPage } from "../../../Pages/admin/AdminProductsPage.js";
+import { API_URL } from "../../../config/env.js";
 
 function newProductData(label) {
   return {
@@ -43,7 +44,7 @@ test("admin can delete a product after confirming", async ({ adminPage }) => {
 
   // Backend: product genuinely delete hua
   const apiResponse = await page.request.get(
-    "http://localhost:5000/api/products",
+    `${API_URL}/api/products`,
   );
   const { products } = await apiResponse.json();
   expect(products.find((p) => p.sku === productData.sku)).toBeUndefined();
@@ -76,7 +77,7 @@ test("admin cancelling delete keeps the product", async ({ adminPage }) => {
 
   // Backend: product abhi bhi save hai
   const apiResponse = await page.request.get(
-    "http://localhost:5000/api/products",
+    `${API_URL}/api/products`,
   );
   const { products } = await apiResponse.json();
   expect(products.find((p) => p.sku === productData.sku)).toBeTruthy();

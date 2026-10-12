@@ -1,6 +1,7 @@
 import { test, expect } from "../../../fixtures/adminAuthenticated.js";
 import * as allure from "allure-js-commons";
 import { AdminProductsPage } from "../../../Pages/admin/AdminProductsPage.js";
+import { API_URL } from "../../../config/env.js";
 
 test("admin can add a new product successfully", async ({ adminPage }) => {
   await allure.feature("AdminProducts");
@@ -33,7 +34,7 @@ test("admin can add a new product successfully", async ({ adminPage }) => {
   expect(countAfter).toBe(countBefore + 1);
 
   const apiResponse = await page.request.get(
-    "http://localhost:5000/api/products",
+    `${API_URL}/api/products`,
   );
   const { products } = await apiResponse.json();
   const savedProduct = products.find((p) => p.sku === productData.sku);

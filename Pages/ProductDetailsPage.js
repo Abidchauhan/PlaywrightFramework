@@ -1,3 +1,5 @@
+import { API_URL } from '../config/env.js';
+
 export class ProductDetailsPage {
   constructor(page) {
     this.page = page;
@@ -19,7 +21,7 @@ export class ProductDetailsPage {
    * it straight from the backend to avoid parsing display text.
    */
   async getStock(productId) {
-    const response = await this.page.request.get(`http://localhost:5000/api/products/${productId}`);
+    const response = await this.page.request.get(`${API_URL}/api/products/${productId}`);
     const { product } = await response.json();
     return product.stock;
   }
