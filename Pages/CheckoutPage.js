@@ -13,7 +13,7 @@ export class CheckoutPage {
   }
 
   async goto() {
-    await this.page.goto('http://localhost:5173/checkout');
+    await this.page.goto('/checkout');
   }
 
   async getTotalAmount() {

@@ -7,7 +7,7 @@ export class LoginPage {
   }
 
   async goto() {
-    await this.page.goto('http://localhost:5173/login');
+    await this.page.goto('/login');
   }
 
   async login(mobileNumber) {

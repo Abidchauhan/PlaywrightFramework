@@ -7,7 +7,7 @@ export class ProductListingPage {
   }
 
   async goto() {
-    await this.page.goto('http://localhost:5173/products');
+    await this.page.goto('/products');
   }
 
   async openFirstProduct() {

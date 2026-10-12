@@ -11,7 +11,7 @@ export class CartPage {
   }
 
   async goto() {
-    await this.page.goto('http://localhost:5173/cart');
+    await this.page.goto('/cart');
   }
 
   qtyInput(productId) {

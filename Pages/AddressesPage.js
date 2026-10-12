@@ -13,7 +13,7 @@ export class AddressesPage {
   }
 
   async goto() {
-    await this.page.goto('http://localhost:5173/addresses');
+    await this.page.goto('/addresses');
   }
 
   async startAdd() {

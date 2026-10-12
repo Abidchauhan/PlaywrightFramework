@@ -31,7 +31,7 @@ export class AdminProductsPage {
   }
 
   async goto() {
-    await this.page.goto("http://localhost:5173/admin/products");
+    await this.page.goto("/admin/products");
   }
 
   async clickAddProduct() {
