@@ -77,7 +77,7 @@ export const test = base.extend(
       // The seeded localStorage only takes effect once the page navigates to
       // the matching origin, and specs expect to land already on /products
       // the way completeOnboarding used to leave them.
-      await page.goto('http://localhost:5173/products');
+      await page.goto('/products');
 
       await use({ page, mobileNumber: workerStorageState.mobileNumber });
 

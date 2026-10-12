@@ -10,7 +10,7 @@ test.describe("Admin RBAC", () => {
     await allure.severity("critical");
     await allure.tag("security");
 
-    await page.goto("http://localhost:5173/admin");
+    await page.goto("/admin");
     await expect(page).toHaveURL(/\/login/);
   });
 
@@ -22,7 +22,7 @@ test.describe("Admin RBAC", () => {
     await allure.tag("security");
 
     await completeOnboarding(page);
-    await page.goto("http://localhost:5173/admin");
+    await page.goto("/admin");
     await expect(page).toHaveURL(/\/products/);
   });
   test("admin session can open /admin dashboard", async ({ adminPage }) => {
@@ -31,7 +31,7 @@ test.describe("Admin RBAC", () => {
     await allure.tag("smoke");
 
     const { page } = adminPage;
-    await page.goto("http://localhost:5173/admin");
+    await page.goto("/admin");
     await expect(page).toHaveURL(/\/admin/);
   });
 });
