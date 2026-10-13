@@ -1,6 +1,8 @@
 // @ts-check
 
-const API_BASE_URL = 'http://localhost:5000/api';
+import { API_URL } from '../../../config/env.js';
+
+const API_BASE_URL = `${API_URL}/api`;
 
 /**
  * Adds a product to the authenticated user's cart, saves a delivery address,

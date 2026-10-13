@@ -2,8 +2,9 @@
 import { test, expect } from '@playwright/test';
 import * as allure from 'allure-js-commons';
 import { getAuthToken } from './utils/authApi.js';
+import { API_URL } from '../../config/env.js';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = `${API_URL}/api`;
 
 test.describe('Wishlist API', () => {
   test('add, list, and remove a product', async ({ request }) => {
