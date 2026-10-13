@@ -34,6 +34,8 @@ End-to-end UI and API test automation for **[MyPracticeProject](https://github.c
 PlaywrightFramework/
 ├── .github/workflows/
 │   └── playwright.yml        # CI pipeline: MySQL service, app checkout, migrate/seed, run tests
+├── config/
+│   └── env.js                # BASE_URL and API_URL, read from environment variables with local defaults
 ├── Pages/                    # Page Object Model — one class per screen
 │   └── admin/                # Admin page objects (AdminProductsPage)
 ├── fixtures/
@@ -79,6 +81,24 @@ npx playwright test --ui
 # Playwright's own HTML report
 npx playwright show-report
 ```
+
+### Target URLs (optional)
+
+Two optional environment variables, read in `config/env.js`, set where the tests point (a trailing slash is stripped):
+
+- `BASE_URL`: the frontend, default `http://localhost:5173`. Used as Playwright's `baseURL` and by the admin login in `global-setup.js`.
+- `API_URL`: the backend, default `http://localhost:5000`. Used by the tests' direct API calls.
+
+```powershell
+$env:BASE_URL="http://localhost:5173"; npm run test:allure
+```
+
+In PowerShell the variable stays set for the rest of the session; clear it with `Remove-Item Env:BASE_URL`.
+
+Limits:
+
+- Only local and CI have been used so far, both on the defaults. No other environment exists, so pointing these at a different one is untested.
+- `API_URL` changes only the tests' direct API calls. The frontend still calls its own backend, so for another environment the frontend must be pointed at that backend too.
 
 ### Viewing the Allure report (local)
 
