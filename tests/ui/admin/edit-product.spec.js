@@ -13,7 +13,7 @@ test("admin can edit an existing product", async ({ adminPage }) => {
 
   // Apna khud ka product banao
   const productData = {
-    name: "Product for Price Edit Test",
+    name: "ZZ-TEST Product for Price Edit Test",
     sku: `PRICE-EDIT-${Date.now()}`,
     price: 500,
     stock: 10,
@@ -54,7 +54,7 @@ test("admin can add previously empty field when editing", async ({
   const adminProductsPage = new AdminProductsPage(page);
 
   const productData = {
-    name: "Test Product for Edit",
+    name: "ZZ-TEST Test Product for Edit",
     sku: `EDIT-TEST-${Date.now()}`,
     price: 500,
     stock: 10,

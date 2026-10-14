@@ -5,7 +5,7 @@ import { API_URL } from "../../../config/env.js";
 
 function newProductData(label) {
   return {
-    name: `Product for ${label} Test`,
+    name: `ZZ-TEST Product for ${label} Test`,
     sku: `${label.toUpperCase()}-TEST-${Date.now()}`,
     price: 500,
     stock: 10,

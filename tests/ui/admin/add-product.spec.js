@@ -10,7 +10,7 @@ test("admin can add a new product successfully", async ({ adminPage }) => {
 
   const { page } = adminPage;
   const productData = {
-    name: "Crystal Hoop Earrings",
+    name: "ZZ-TEST Crystal Hoop Earrings",
     sku: `EARR-HOO-${Date.now()}`,
     price: 1295,
     stock: 100,
