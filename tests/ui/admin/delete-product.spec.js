@@ -16,7 +16,7 @@ function newProductData(label) {
   };
 }
 
-test("admin can delete a product after confirming", async ({ adminPage }) => {
+test("admin can delete a product after confirming", async ({ adminPage, cleanupProductBySku }) => {
   await allure.feature("AdminProducts");
   await allure.severity("normal");
   await allure.tag("crud");
@@ -24,6 +24,7 @@ test("admin can delete a product after confirming", async ({ adminPage }) => {
   const { page } = adminPage;
   const adminProductsPage = new AdminProductsPage(page);
   const productData = newProductData("delete");
+  cleanupProductBySku(productData.sku);
 
   // Apna khud ka product banao
   await adminProductsPage.goto();
@@ -50,7 +51,7 @@ test("admin can delete a product after confirming", async ({ adminPage }) => {
   expect(products.find((p) => p.sku === productData.sku)).toBeUndefined();
 });
 
-test("admin cancelling delete keeps the product", async ({ adminPage }) => {
+test("admin cancelling delete keeps the product", async ({ adminPage, cleanupProductBySku }) => {
   await allure.feature("AdminProducts");
   await allure.severity("minor");
   await allure.tag("crud");
@@ -58,6 +59,7 @@ test("admin cancelling delete keeps the product", async ({ adminPage }) => {
   const { page } = adminPage;
   const adminProductsPage = new AdminProductsPage(page);
   const productData = newProductData("cancel");
+  cleanupProductBySku(productData.sku);
 
   await adminProductsPage.goto();
   await expect(adminProductsPage.productRows.first()).toBeVisible();

@@ -3,7 +3,7 @@ import * as allure from "allure-js-commons";
 import { AdminProductsPage } from "../../../Pages/admin/AdminProductsPage.js";
 import { API_URL } from "../../../config/env.js";
 
-test("admin can edit an existing product", async ({ adminPage }) => {
+test("admin can edit an existing product", async ({ adminPage, cleanupProductBySku }) => {
   await allure.feature("AdminProducts");
   await allure.severity("normal");
   await allure.tag("crud");
@@ -22,6 +22,7 @@ test("admin can edit an existing product", async ({ adminPage }) => {
     subcategory: "Studs",
     description: "Product for price edit test",
   };
+  cleanupProductBySku(productData.sku);
 
   await adminProductsPage.goto();
   await expect(adminProductsPage.productRows.first()).toBeVisible();
@@ -45,6 +46,7 @@ test("admin can edit an existing product", async ({ adminPage }) => {
 
 test("admin can add previously empty field when editing", async ({
   adminPage,
+  cleanupProductBySku,
 }) => {
   await allure.feature("AdminProducts");
   await allure.severity("normal");
@@ -63,6 +65,7 @@ test("admin can add previously empty field when editing", async ({
     subcategory: "Studs",
     description: "Product for edit test",
   };
+  cleanupProductBySku(productData.sku);
 
   await adminProductsPage.goto();
   await expect(adminProductsPage.productRows.first()).toBeVisible();

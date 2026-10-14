@@ -3,7 +3,7 @@ import * as allure from "allure-js-commons";
 import { AdminProductsPage } from "../../../Pages/admin/AdminProductsPage.js";
 import { API_URL } from "../../../config/env.js";
 
-test("admin can add a new product successfully", async ({ adminPage }) => {
+test("admin can add a new product successfully", async ({ adminPage, cleanupProductBySku }) => {
   await allure.feature("AdminProducts");
   await allure.severity("critical");
   await allure.tag("crud");
@@ -19,6 +19,7 @@ test("admin can add a new product successfully", async ({ adminPage }) => {
     subcategory: "Studs",
     description: "Elegant crystal hoop earrings with a modern finish",
   };
+  cleanupProductBySku(productData.sku);
   const adminProductsPage = new AdminProductsPage(page);
   await adminProductsPage.goto();
   await expect(adminProductsPage.productRows.first()).toBeVisible();
