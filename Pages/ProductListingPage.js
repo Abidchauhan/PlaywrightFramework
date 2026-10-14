@@ -21,6 +21,8 @@ export class ProductListingPage {
    * all converging on that one product across parallel runs.
    */
   async openRandomProduct() {
+    // The listing renders all cards at once after its fetch; count() before that returns 0.
+    await this.productCards.first().waitFor();
     const count = await this.productCards.count();
     const index = Math.floor(Math.random() * count);
     await this.productCards.nth(index).click();
